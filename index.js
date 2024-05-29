@@ -10,7 +10,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(logger);
-app.use(token);
+// app.use(token);
 
 app.use('/user', require('./routes/UserRoute'));
 mongoose.connect('mongodb://localhost:27017/your-database-name')

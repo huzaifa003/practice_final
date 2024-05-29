@@ -1,6 +1,7 @@
+const token = require('../middleware/token');
 const userModel = require('../models/UserSchema');
 const router = require('express').Router();
-
+const jwt = require('jsonwebtoken');;
 router.post('/register', async (req, res) => {
     try {
         const user = new userModel(req.body);
@@ -20,6 +21,27 @@ router.get('/', async (req, res) => {
     } catch (error) {
         res
     }
+});
+
+router.post('/login',  async (req, res) => {
+    try {
+        const user = await userModel.findOne({
+            email: req
+                .body.email
+        });
+        if (!user) return res.status(400).send('User not found');
+        if (user.password !== req.body.password) return res.status(400).send('Invalid password');
+        const token = jwt.sign({ _id : user._id }, 'SECRET');
+        res.send(token);
+    } catch (error) {
+        res.status(500).send
+    }
+}
+);
+
+router.get("/protected", token, (req, res) => { 
+
+    res.send("This is a protected route");
 });
 
 module.exports = router;
