@@ -1,3 +1,4 @@
+const { roles, ROLES } = require('../middleware/roles');
 const token = require('../middleware/token');
 const userModel = require('../models/UserSchema');
 const router = require('express').Router();
@@ -31,7 +32,7 @@ router.post('/login',  async (req, res) => {
         });
         if (!user) return res.status(400).send('User not found');
         if (user.password !== req.body.password) return res.status(400).send('Invalid password');
-        const token = jwt.sign({ _id : user._id }, 'SECRET');
+        const token = jwt.sign({ _id : user._id, role : user.role}, 'SECRET', { expiresIn: '1h' });
         res.send(token);
     } catch (error) {
         res.status(500).send
@@ -39,9 +40,14 @@ router.post('/login',  async (req, res) => {
 }
 );
 
-router.get("/protected", token, (req, res) => { 
+router.get("/protected", token, roles(ROLES.ADMIN), (req, res) => { 
 
     res.send("This is a protected route");
 });
+
+router.get("/protectedUser", token, roles(ROLES.USER), (req, res) => {
+    res.send("This is a User Route");
+})
+
 
 module.exports = router;
